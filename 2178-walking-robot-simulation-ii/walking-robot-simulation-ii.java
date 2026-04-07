@@ -1,49 +1,76 @@
-// Added using AI
 class Robot {
-    int x, y, width, height;
-    String dir;
+
+    int w, h;
+    int x, y;
+    int dir; // 0=East, 1=North, 2=West, 3=South
+    int per;
 
     public Robot(int width, int height) {
-        this.x = 0; this.y = 0;
-        this.dir = "East" ;
-        this.width = width; this.height = height;
+        this.w = width;
+        this.h = height;
+        this.x = 0;
+        this.y = 0;
+        this.dir = 0; // initially East
+        this.per = 2 * (w + h) - 4;
     }
-
+    
     public void step(int num) {
-        int perim = 2 * (width - 1) + 2 * (height - 1);
-        num %= perim;
-        if (num == 0) num = perim;
+        if (per == 0) return;
+
+        num %= per;
+
+        // special case: full cycle
+        if (num == 0) {
+            if (x == 0 && y == 0) {
+                dir = 3; // South
+            }
+            return;
+        }
 
         while (num > 0) {
-            int nx = x, ny = y;
-            if (dir.equals("East")) {
-                int maxX = Math.min(x + num, width - 1);
-                int rem  = num - (maxX - x) ;
-                num = rem;
-                if (rem == 0) x = maxX;
-                else          { x = maxX; dir = "North"; }
-            } else if (dir.equals("West")) {
-                int minX = Math.max(x - num, 0);
-                int rem  = num - (x - minX) ;
-                num = rem;
-                if (rem == 0) x = minX;
-                else          { x = minX; dir = "South"; }
-            } else if (dir.equals("North")) {
-                int maxY = Math.min(y + num, height - 1);
-                int rem  = num - (maxY - y) ;
-                num = rem;
-                if (rem == 0) y = maxY;
-                else          { y = maxY; dir = "West"; }
-            } else if (dir.equals("South")) {
-                int minY = Math.max(y - num, 0);
-                int rem  = num - (y - minY) ;
-                num = rem;
-                if (rem == 0) y = minY;
-                else          { y = minY; dir = "East"; }
+            if (dir == 0) { // East
+                int move = Math.min(num, w - 1 - x);
+                x += move;
+                num -= move;
+                if (num > 0) dir = 1;
+            } 
+            else if (dir == 1) { // North
+                int move = Math.min(num, h - 1 - y);
+                y += move;
+                num -= move;
+                if (num > 0) dir = 2;
+            } 
+            else if (dir == 2) { // West
+                int move = Math.min(num, x);
+                x -= move;
+                num -= move;
+                if (num > 0) dir = 3;
+            } 
+            else { // South
+                int move = Math.min(num, y);
+                y -= move;
+                num -= move;
+                if (num > 0) dir = 0;
             }
         }
     }
-
-    public int[] getPos() { return new int[]{x, y}; }
-    public String getDir() { return dir; }
+    
+    public int[] getPos() {
+        return new int[]{x, y};
+    }
+    
+    public String getDir() {
+        if (dir == 0) return "East";
+        if (dir == 1) return "North";
+        if (dir == 2) return "West";
+        return "South";
+    }
 }
+
+/**
+ * Your Robot object will be instantiated and called as such:
+ * Robot obj = new Robot(width, height);
+ * obj.step(num);
+ * int[] param_2 = obj.getPos();
+ * String param_3 = obj.getDir();
+ */
